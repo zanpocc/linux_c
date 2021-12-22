@@ -1,9 +1,8 @@
 //
-// Created by 陈功 on 2021/10/19.
+// Created by cg on 2021/10/19.
 //
 
 #include<fcntl.h>
-#include<string.h>
 #include<stdio.h>
 #include <stdlib.h>
 #include<unistd.h>
