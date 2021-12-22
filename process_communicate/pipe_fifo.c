@@ -1,14 +1,12 @@
 //
-// Created by 陈功 on 2021/10/18.
+// Created by cg on 2021/10/18.
 //
 
 #include <stdio.h>
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <fcntl.h>
-#include <sys/stat.h>
 
 int main(){
 
