@@ -29,7 +29,7 @@ int main() {
     addr.sin_addr.s_addr = inet_addr(SERVER_IP);
     addr.sin_port = htons(PORT);
 
-    int sfd = connect(fd, &addr, sizeof(addr));
+    int sfd = connect(fd, (const struct sockaddr *) &addr, sizeof(addr));
     if (sfd == -1) {
         perror("connect");
         exit(-1);

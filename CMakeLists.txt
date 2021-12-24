@@ -12,4 +12,5 @@ add_executable(normal_socket_server network/normal/normal_socket_server.c)
 add_executable(normal_socket_client network/normal/normal_socket_client.c)
 
 add_executable(select_socket_server network/select/server.c)
+add_executable(poll_socket_server network/poll/server.c)
 
