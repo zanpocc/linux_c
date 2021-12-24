@@ -39,13 +39,15 @@ int main() {
 
     char buf[255];
 
-    memset(buf, 0, 255);
-    // 从控制台读取输入到缓冲区
-    read(STDIN_FILENO, buf, sizeof(buf));
-    // 发送缓冲区数据到服务器
-    int len = send(fd, buf, strlen(buf), MSG_WAITALL);
-    if (len >= 0) {
-        printf("发送数据成功,len:%d\n", len);
+    while(1){
+        memset(buf, 0, 255);
+        // 从控制台读取输入到缓冲区
+        read(STDIN_FILENO, buf, sizeof(buf));
+        // 发送缓冲区数据到服务器
+        int len = send(fd, buf, strlen(buf), MSG_WAITALL);
+        if (len >= 0) {
+            printf("发送数据成功,len:%d\n", len);
+        }
     }
 
     return 0;
