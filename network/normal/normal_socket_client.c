@@ -36,6 +36,7 @@ int main() {
     }
 
     printf("连接到服务器成功\n");
+    fflush(stdout);
 
     char buf[255];
 
@@ -47,6 +48,7 @@ int main() {
         int len = send(fd, buf, strlen(buf), MSG_WAITALL);
         if (len >= 0) {
             printf("发送数据成功,len:%d\n", len);
+            fflush(stdout);
         }
     }
 

@@ -60,6 +60,7 @@ int main() {
 
     while (1) {
         printf("等待事件:%d...\n", maxFd);
+        fflush(stdout);
         int count = select(maxFd + 1, &readFdSet, NULL, NULL, NULL);
         if (count == -1) {
             perror("select");
@@ -72,8 +73,10 @@ int main() {
             memset(&clientSockAddr, 0, sizeof(clientSockAddr));
             socklen_t len;
             printf("等待连接...\n");
+            fflush(stdout);
             int clientFd = accept(sfd, (struct sockaddr *) &clientSockAddr, &len);
             printf("有连接到来,IP：%s,port:%d\n", inet_ntoa(clientSockAddr.sin_addr), clientSockAddr.sin_port);
+            fflush(stdout);
             FD_SET(clientFd, &readFdSet);
             // 保存连接
             fds[fdIndex] = clientFd;
@@ -92,8 +95,10 @@ int main() {
                     memset(&buff, 0, 255);
                     int clientFd = fds[i];
                     printf("读取数据...\n");
+                    fflush(stdout);
                     readLine(clientFd, buff);
                     printf("接收到:%d的数据:%s\n", clientFd, buff);
+                    fflush(stdout);
                 }
             }
         }

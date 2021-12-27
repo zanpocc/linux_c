@@ -49,6 +49,7 @@ int main() {
 
     while (1) {
         printf("等待连接......\n");
+        fflush(stdout);
         // 接收新连接
         struct sockaddr_in acceptAddr;
         memset(&acceptAddr, 0, sizeof(acceptAddr));
@@ -61,10 +62,12 @@ int main() {
         }
 
         printf("接收到新连接:%d\n", acceptFd);
+        fflush(stdout);
 
         char buf[255];
         memset(buf, 0, 255);
         int len = recv(acceptFd, buf, 255, MSG_WAITALL);
         printf("接收到数据:%s,长度:%d\n", buf, len);
+        fflush(stdout);
     }
 }
