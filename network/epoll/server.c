@@ -12,6 +12,16 @@
 #include <unistd.h>
 #include <memory.h>
 
+/**
+ *  Linux网络模型epoll实现
+ *  优点：
+ *  1、O(1)复杂度获取发生事件的描述符
+ *  2、有状态，存在内核空间数据结构
+ *  3、可以处理大量的文件描述符
+ *
+ */
+
+
 #define SERVER_IP "172.16.1.171"
 #define PORT 1235
 #define MAXFD 100
