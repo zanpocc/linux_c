@@ -24,7 +24,7 @@
 
 #define SERVER_IP "172.16.1.171"
 #define PORT 1235
-#define MAXFD 100
+#define MAXFD 10000
 
 // 函数声明
 int server_socket_ipv4_tcp(char *ip, int port);
@@ -49,7 +49,7 @@ int main(){
 
     // 监听socket事件
     struct epoll_event listenEvent;
-    listenEvent.events = EPOLLIN;
+    listenEvent.events = EPOLLIN; // 使用ET加速,就绪只发送一次通知;
     listenEvent.data.fd = lfd;
 
     // 注册监听socket到epoll
@@ -58,12 +58,14 @@ int main(){
         fflush(stdout);
     }
 
+    int connectCount = 0;
+
     while(1){
         // -1表示阻塞,阻塞等待事件发生
-        printf("等待事件\n");
+        printf("等待事件,当前连接数：%d\n",connectCount);
         fflush(stdout);
 
-        int count = epoll_wait(epollObj,totalEvent,20,-1);
+        int count = epoll_wait(epollObj,totalEvent,MAXFD,-1);
         if(count > 0){
             printf("有事件到来\n");
             fflush(stdout);
@@ -71,10 +73,9 @@ int main(){
 
         // 遍历所有事件,从事件数组中取出前count个
         int i = 0;
+
         for (; i < count; ++i) {
             struct epoll_event ev = totalEvent[i];
-
-
             // 从事件数组中取出文件描述符
             if(ev.data.fd == lfd){// 如果是监听fd,有新连接到来
                 printf("新连接到来\n");
@@ -83,15 +84,23 @@ int main(){
                 struct sockaddr_in clientSockAddr;
                 socklen_t len;
                 int clientFd = accept(lfd,&clientSockAddr,&len);
+                if(clientFd == -1){
+                    perror("accept\n");
+                }
+
                 // 注册到epoll
                 struct epoll_event clientEvent;
                 clientEvent.data.fd = clientFd;
-                clientEvent.events = EPOLLIN;
+                clientEvent.events = EPOLLIN; // 使用ET加速,就绪只发送一次通知
 
                 if(epoll_ctl(epollObj,EPOLL_CTL_ADD,clientFd,&clientEvent) == 0){
                     printf("接收到新连接,注册到epoll成功\n");
                     fflush(stdout);
+                }else{
+                    perror("注册到epoll失败\n");
                 }
+
+                connectCount++;
 
             }else if(ev.events & EPOLLIN){ // 如果是其它的fd,则表示客户端有数据到来
                 printf("数据到来\n");

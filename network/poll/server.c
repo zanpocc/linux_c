@@ -26,7 +26,7 @@
 
 #define SERVER_IP "172.16.1.171"
 #define PORT 1235
-#define MAXFD 100
+#define MAXFD 10000
 
 // 函数声明
 int server_socket_ipv4_tcp(char *ip, int port);

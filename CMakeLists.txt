@@ -15,3 +15,5 @@ add_executable(select_socket_server network/select/server.c)
 add_executable(poll_socket_server network/poll/server.c)
 add_executable(epoll_socket_server network/epoll/server.c)
 
+add_executable(testSocketFdCount network/testSocketFdCount.c)
+

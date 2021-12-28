@@ -13,15 +13,14 @@
 
 #define SERVER_IP "172.16.1.171"
 #define PORT 1235
-#define MAXFD 10
+#define MAXFD 5000
 
 /**
  * 使用select实现的单线程网络模型：
  * 缺点：
- * 1、fd_set大小有限, 大小为sizeof(fd_set)*8
- * 2、无状态,每次调用都需要重新设置
+ * 1、fd_set大小有限, 只能监听1024个fd的读写状态变化
+ * 2、无状态,每次调用都需要重新设置，需要遍历所有监听的fd，检查是否状态发生变化
  */
-
 
 int server_socket_ipv4_tcp(char *ip, int port);
 
@@ -40,7 +39,7 @@ int main() {
     int fds[MAXFD];
     memset(fds, 0, sizeof(int) * MAXFD);
     // 客户端描述数量
-    int fdIndex = 0;
+    int fdIndex = 1;
     // 创建服务器socket
     int sfd = server_socket_ipv4_tcp((char *) SERVER_IP, PORT);
 
@@ -53,6 +52,7 @@ int main() {
 
     // 设置要监控的fd到集合
     FD_SET(sfd, &readFdSet);
+    fds[0] = sfd;
 
     struct timeval time;
     time.tv_sec = 0;
@@ -72,31 +72,40 @@ int main() {
             struct sockaddr_in clientSockAddr;
             memset(&clientSockAddr, 0, sizeof(clientSockAddr));
             socklen_t len;
+
             printf("等待连接...\n");
             fflush(stdout);
+
             int clientFd = accept(sfd, (struct sockaddr *) &clientSockAddr, &len);
-            printf("有连接到来,IP：%s,port:%d\n", inet_ntoa(clientSockAddr.sin_addr), clientSockAddr.sin_port);
+            if(clientFd == -1){
+                perror("accept");
+                exit(-1);
+            }
+
+            printf("有连接到来,IP：%s,port:%d,fd:%d\n", inet_ntoa(clientSockAddr.sin_addr), clientSockAddr.sin_port,clientFd);
             fflush(stdout);
+
             FD_SET(clientFd, &readFdSet);
             // 保存连接
-            fds[fdIndex] = clientFd;
-            fdIndex++;
             maxFd = max(maxFd, clientFd);
-
+            fds[fdIndex++] = clientFd;
         } else {
             // 有数据到来
             int i = 0;
             for (; i < MAXFD; i++) {
-                if (fds[i] == 0) {
+                int clientFd = fds[i];
+                if (clientFd <= 0) {
                     continue;
                 }
-                if (FD_ISSET(fds[i], &readFdSet)) {
+                if (FD_ISSET(clientFd, &readFdSet)) {
                     char buff[255];
                     memset(&buff, 0, 255);
-                    int clientFd = fds[i];
+
                     printf("读取数据...\n");
                     fflush(stdout);
+
                     readLine(clientFd, buff);
+
                     printf("接收到:%d的数据:%s\n", clientFd, buff);
                     fflush(stdout);
                 }
@@ -106,14 +115,12 @@ int main() {
         // 把所有的fd都放入监控,因为没有事件的FD对应的位会被清空
         FD_ZERO(&readFdSet);
         int i = 0;
-        FD_SET(sfd, &readFdSet);
-        for (i; i < MAXFD; i++) {
+        for (i; i <= fdIndex; i++) {
             if (fds[i] != 0) {
                 FD_SET(fds[i], &readFdSet);
             }
         }
     }
-
     return 0;
 }
 
@@ -150,7 +157,6 @@ int server_socket_ipv4_tcp(char *ip, int port) {
 
     return lfd;
 }
-
 
 void readLine(int fd, char *buff) {
     char c;
