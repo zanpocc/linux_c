@@ -39,7 +39,7 @@ int main(){
     while(1){
         printf("等待连接,%d\n",i);
         fflush(stdout);
-        int clientFd= accept(lfd,&addr,&len);
+        int clientFd= accept(lfd, (struct sockaddr *) &addr, &len);
         if(clientFd == -1){
             perror("accept\n");
         }

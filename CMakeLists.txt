@@ -17,3 +17,5 @@ add_executable(epoll_socket_server network/epoll/server.c)
 
 add_executable(testSocketFdCount network/testSocketFdCount.c)
 
+add_executable(affinity cpu/affinity.c)
+

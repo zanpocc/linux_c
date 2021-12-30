@@ -83,7 +83,7 @@ int main(){
 
                 struct sockaddr_in clientSockAddr;
                 socklen_t len;
-                int clientFd = accept(lfd,&clientSockAddr,&len);
+                int clientFd = accept(lfd, (struct sockaddr *) &clientSockAddr, &len);
                 if(clientFd == -1){
                     perror("accept\n");
                 }
@@ -107,7 +107,7 @@ int main(){
                 fflush(stdout);
                 int clientFd = ev.data.fd;
                 char buff[255];
-                readLine(clientFd,&buff);
+                readLine(clientFd, (char *) &buff);
                 printf("接收到客户端FD:%d的数据:%s\n",clientFd,buff);
                 fflush(stdout);
             }
